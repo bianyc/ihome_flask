@@ -61,10 +61,23 @@ def get_sms_code(mobile):
     # 2.判断图片验证码是否过期
     if not real_img_code:
         return jsonify(errno=RET.DATAERR, errmsg="图片验证码失效")
+    # 删除Redis图片验证码，防止同一图片重复验证
+    try:
+        redis_store.delete("img_code_{}".format(image_code_id))
+    except Exception as e:
+        current_app.logger.errer(e)
     # 3.与用户填写的值进行对比
     if str(real_img_code, encoding='utf-8').lower() != image_code.lower():
         # 表示用户输入图片验证码错误
         return jsonify(errno=RET.DATAERR, errmsg="图片验证码错误")
+    # 判断60s内是否向该手机发送过短信
+    try:
+        send_status = redis_store.get("send_mobile_{}".format(mobile))
+    except Exception as e:
+        current_app.logger.errer(e)
+    else:
+        if send_status:
+            return jsonify(errno=RET.REQERR, errmsg="请求过于频繁，请60s后重试")
     # 4.判断手机号是否存在
     try:
         user = User.query.filter_by(mobile=mobile).first()
@@ -78,6 +91,8 @@ def get_sms_code(mobile):
     # 6.保存真实验证码
     try:
         redis_store.setex("sms_code_{}".format(mobile), constants.SMS_CODE_REDIS_EXPIRE, sms_code)
+        # 该手机号发送短信的记录，防止其60s内重复发送
+        redis_store.setex("send_mobile_{}".format(mobile), constants.SEND_SMS_REDIS_EXPIRE, 1)
     except Exception as e:
         current_app.logger.errer(e)
         return jsonify(errno=RET.DBERR, errmsg="保存短信验证码失败")
