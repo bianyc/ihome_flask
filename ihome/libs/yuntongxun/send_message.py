@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import re
 from ihome.libs.yuntongxun.SmsSDK import SmsSDK
 
 
@@ -23,24 +25,22 @@ accToken = '1223d13a009747efbf371665582bd0d8'
 appId = '8aaf07086010a0eb016036566f7010e8'
 
 
-class CCP(object):
-    """自己封装的发送短信的类"""
+def send_message(mobile, sms_code, time):
+    sdk = SmsSDK(accId, accToken, appId)
+    tid = '1'
+    # mobile = '15510119848'
+    data = (sms_code, time)
+    resp = sdk.sendMessage(tid, mobile, data)
+    re_find = re.findall(r'{"statusCode":"(.*?)",', resp)
+    if re_find:
+        status_code = str(re_find[0])
+        if status_code == "000000":
+            return 0
+        else:
+            return -1
+    else:
+        return -1
 
-    # 用来保存CCP类属性
-    instance = None
 
-    def __new__(cls):
-        # 判断CCP类有没有已经创建好的类，如果有，则返回，没有则创建
-        if not cls.instance:
-            obj = CCP()
-            # 初始化SDK
-            obj.sdk = SmsSDK(accId, accToken, appId)
-            cls.instance = obj
-        return cls.instance
-
-    def send_message(self):
-        tid = '容联云通讯创建的模板'
-        mobile = '手机号1,手机号2'
-        datas = ('变量1', '变量2')
-        resp = self.sdk.sendMessage(tid, mobile, datas)
-        print(resp)
+# if __name__ == '__main__':
+#     send_message()

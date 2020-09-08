@@ -53,7 +53,7 @@ class SmsSDK:
         try:
             r = requests.post(url, headers=headers, data=body, timeout=(2, 5))
             if (r.status_code == requests.codes.ok):
-                print('Response body: ', r.text)
+                # print('Response body: ', r.text)
                 return r.text
             else:
                 return json.dumps({'statusCode': str(r.status_code)})
@@ -73,7 +73,7 @@ class SmsSDK:
             签名大写字符串
         """
         plaintext = f'{self.__accId}{self.__accToken}{timestamp}'
-        print("Sign plaintext: ", plaintext)
+        # print("Sign plaintext: ", plaintext)
         return algorithm.md5(plaintext).upper()
 
     def __buildHeaders(self, timestamp):
@@ -93,7 +93,7 @@ class SmsSDK:
             Authorization字符串
         """
         plaintext = f'{self.__accId}:{timestamp}'
-        print("Authorization plaintext: %s" % plaintext)
+        # print("Authorization plaintext: %s" % plaintext)
         return algorithm.base64Encoder(plaintext)
 
     def __buildSendMessageBody(self, tid, mobile, datas):
@@ -107,6 +107,6 @@ class SmsSDK:
 
     def __logRequestInfo(self, url, headers, body):
         """打印请求信息日志"""
-        print('Request url: ', url)
-        print('Request headers: ', headers)
-        print('Request body: ', body)
+        # print('Request url: ', url)
+        # print('Request headers: ', headers)
+        # print('Request body: ', body)
