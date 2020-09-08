@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import redis
+import platform
 
 
 class Config(object):
@@ -7,7 +8,10 @@ class Config(object):
 
     SECRET_KEY = "XHSOI*Y9dfs9cshd9"
     # 数据库
-    SQLALCHEMY_DATABASE_URI = "mysql://root:123456@localhost:3306/ihome"
+    if platform.system() == 'Windows':
+        SQLALCHEMY_DATABASE_URI = "mysql://root:123456@localhost:3306/ihome"
+    else:
+        SQLALCHEMY_DATABASE_URI = "mysql://root:bianyachao@localhost:3306/ihome"
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
     # redis
