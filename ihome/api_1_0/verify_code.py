@@ -43,8 +43,8 @@ def get_image_code(image_code_id):
 def get_sms_code(mobile):
     """获取短信验证码"""
     # 获取参数
-    image_code = request.args.get("image_code")
-    image_code_id = request.args.get("image_code_id")
+    image_code = request.args.get("imageCode")
+    image_code_id = request.args.get("imageCodeId")
 
     # 校验参数
     if not all([image_code, image_code_id]):
