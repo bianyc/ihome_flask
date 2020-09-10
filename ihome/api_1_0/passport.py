@@ -63,6 +63,9 @@ def register():
 
     # 保存用户的注册数据到数据库
     user = User(nickname=mobile, mobile=mobile)
+    # user.get_password_hash(password)
+    user.password_hash = password  # 设置属性
+
     try:
         db.session.add(user)
         db.session.commit()

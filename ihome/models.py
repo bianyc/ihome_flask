@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from werkzeug import generate_password_hash
 from ihome import db
 
 
@@ -21,6 +22,27 @@ class User(BaseModel, db.Model):
     avatar_url = db.Column(db.String(128))  # 用户头像路径
     houses = db.relationship("House", backref='user')  # 用户发布的房屋
     orders = db.relationship("Order", backref='user')  # 用户下的订单
+
+    # def get_password_hash(self, password):
+    #     """对密码进行加密"""
+    #     self.password_hash = generate_password_hash(password)
+
+    @property
+    def hash_password(self):
+        """读取属性的函数行为"""
+        # print(user.password)  # 读取属性时被调用
+        # 函数的返回值会作为属性值
+        # return "xxxx"
+        raise AttributeError("这个属性只能设置，不能读取")
+
+    @hash_password.setter
+    def hash_password(self, value):
+        """
+        设置属性  user.password = "xxxxx"
+        :param value: 设置属性时的数据 value就是"xxxxx", 原始的明文密码
+        :return:
+        """
+        self.password_hash = generate_password_hash(value)
 
 
 class Area(BaseModel, db.Model):
