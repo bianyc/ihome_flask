@@ -29,7 +29,7 @@ def get_image_code(image_code_id):
     try:
         redis_store.setex("img_code_{}".format(image_code_id), constants.IMG_CODE_REDIS_EXPIRE, text)
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="保存图片验证码失败")
 
     # 返回值
@@ -56,7 +56,7 @@ def get_sms_code(mobile):
     try:
         real_img_code = redis_store.get("img_code_{}".format(image_code_id))
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="Redis数据库异常")
     # 2.判断图片验证码是否过期
     if not real_img_code:
@@ -65,7 +65,7 @@ def get_sms_code(mobile):
     try:
         redis_store.delete("img_code_{}".format(image_code_id))
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
     # 3.与用户填写的值进行对比
     if str(real_img_code, encoding='utf-8').lower() != image_code.lower():
         # 表示用户输入图片验证码错误
@@ -74,7 +74,7 @@ def get_sms_code(mobile):
     try:
         send_status = redis_store.get("send_mobile_{}".format(mobile))
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
     else:
         if send_status:
             return jsonify(errno=RET.REQERR, errmsg="请求过于频繁，请60s后重试")
@@ -82,7 +82,7 @@ def get_sms_code(mobile):
     try:
         user = User.query.filter_by(mobile=mobile).first()
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
     else:
         if user:
             return jsonify(errno=RET.DATAEXIST, errmsg="手机号已存在")
@@ -94,7 +94,7 @@ def get_sms_code(mobile):
         # 该手机号发送短信的记录，防止其60s内重复发送
         redis_store.setex("send_mobile_{}".format(mobile), constants.SEND_SMS_REDIS_EXPIRE, 1)
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="保存短信验证码失败")
 
     # 发送短信
@@ -102,7 +102,7 @@ def get_sms_code(mobile):
     try:
         status = send_message(str(mobile), sms_code, time)
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.THIRDERR, errmsg="发送异常")
 
     # 返回值

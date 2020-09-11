@@ -38,25 +38,25 @@ def register():
     try:
         real_sms_code = redis_store.get("sms_code_{}".format(mobile))
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="读取真实短信验证码异常")
     # 短信验证码是否过时
     if not real_sms_code:
-        jsonify(errno=RET.NODATA, errmsg="短信验证码过期失效")
+        return jsonify(errno=RET.NODATA, errmsg="短信验证码过期失效")
     # 删除短信验证码，防止重复校验
     try:
         redis_store.delete("sms_code_{}".format(mobile))
     except Exception as e:
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
     # 校验短信验证码
-    if sms_code != real_sms_code:
+    if sms_code != str(real_sms_code, encoding='utf-8'):
         return jsonify(errno=RET.PARAMERR, errmsg="短信验证码输入错误")
 
     # 判断手机号是否注册
     # try:
     #     user = User.query.filter_by(mobile=mobile).first()
     # except Exception as e:
-    #     current_app.logger.errer(e)
+    #     current_app.logger.error(e)
     # else:
     #     if user:
     #         return jsonify(errno=RET.DATAEXIST, errmsg="手机号已存在")
@@ -64,18 +64,18 @@ def register():
     # 保存用户的注册数据到数据库
     user = User(nickname=mobile, mobile=mobile)
     # user.get_password_hash(password)
-    user.password_hash = password  # 设置属性
+    user.hash_password = password  # 设置属性
 
     try:
         db.session.add(user)
         db.session.commit()
     except IntegrityError as e:
         db.session.rollback()
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DATAEXIST, errmsg="手机号已存在")
     except Exception as e:
         db.session.rollback()
-        current_app.logger.errer(e)
+        current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="查询数据库异常")
 
     # 保存登录状态到session中

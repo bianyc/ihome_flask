@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from werkzeug import generate_password_hash
+from werkzeug.security import generate_password_hash
 from ihome import db
 
 
 class BaseModel(object):
     """模型基类，为每个模型补充创建时间和更新时间"""
     create_time = db.Column(db.DateTime, default=datetime.now())  # 创建时间
-    update_time = db.Column(db.DateTime, default=datetime, onupdate=datetime.now())  # 更新时间
+    update_time = db.Column(db.DateTime, default=datetime.now(), onupdate=datetime.now())  # 更新时间
 
 
 class User(BaseModel, db.Model):
