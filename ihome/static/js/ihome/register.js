@@ -1,3 +1,5 @@
+
+// js读取cookie的方法
 function getCookie(name) {
     var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
     return r ? r[1] : undefined;
@@ -118,7 +120,9 @@ $(document).ready(function () {
     $("#password2").focus(function () {
         $("#password2-err").hide();
     });
+    // 为表单的提交补充自定义的函数行为 （提交事件e）
     $(".form-register").submit(function (e) {
+        // 阻止浏览器对于表单的默认自动提交行为
         e.preventDefault();
         mobile = $("#mobile").val();
         phoneCode = $("#phonecode").val();
@@ -139,10 +143,36 @@ $(document).ready(function () {
             $("#password-err").show();
             return;
         }
-        if (passwd != passwd2) {
+        if (passwd !== passwd2) {
             $("#password2-err span").html("两次密码不一致!");
             $("#password2-err").show();
             return;
         }
+        // 调用ajax向后端发送注册请求
+        var reg_data = {
+            mobile: mobile,
+            sms_code: phoneCode,
+            password: passwd,
+            password2: passwd2
+        }
+        var reg_json = JSON.stringify(reg_data)
+        $.ajax({
+            url: "api/v1.0/users",
+            type: "post",
+            data: reg_json,
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+                "X-CSRFToken": getCookie("csrf_token")
+            }, // 请求头，将csrf_token值放到请求中，方便后端csrf进行验证
+            success: function (resp) {
+                if (resp.errno === "0"){
+                    // 表示注册成功，跳转到主页
+                    location.href = "/index.html"
+                }else {
+                    alert(resp.errmsg)
+                }
+            }
+        })
     });
 })
