@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from ihome import db
 
 
@@ -43,6 +43,14 @@ class User(BaseModel, db.Model):
         :return:
         """
         self.password_hash = generate_password_hash(value)
+
+    def check_password(self, password):
+        """
+        校验输入的密码是否正确
+        :param password: 用户输入的密码
+        :return: 正确返回True，否则返回False
+        """
+        return check_password_hash(self.password_hash, password)
 
 
 class Area(BaseModel, db.Model):

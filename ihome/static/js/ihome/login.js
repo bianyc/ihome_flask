@@ -24,5 +24,29 @@ $(document).ready(function() {
             $("#password-err").show();
             return;
         }
+        // 将表单的数据存放到对象data中
+        var reg_data = {
+            mobile: mobile,
+            password: passwd
+        }
+        var reg_json = JSON.stringify(reg_data)
+        $.ajax({
+            url: "api/v1.0/sessions",
+            type: "post",
+            data: reg_json,
+            contentType: "application/json",
+            dataType: "json",
+            headers: {
+                "X-CSRFToken": getCookie("csrf_token")
+            }, // 请求头，将csrf_token值放到请求中，方便后端csrf进行验证
+            success: function (resp) {
+                if (resp.errno === "0"){
+                    // 表示登录成功，跳转到主页
+                    location.href = "/index.html"
+                }else {
+                    alert(resp.errmsg)
+                }
+            }
+        })
     });
 })

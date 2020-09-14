@@ -4,7 +4,7 @@ import re
 from flask import current_app, jsonify, session, request
 from sqlalchemy.exc import IntegrityError
 from ihome.api_1_0 import api
-from ihome import redis_store, db
+from ihome import redis_store, db, constants
 from ihome.models import User
 from ihome.utlis.response_code import RET
 
@@ -85,3 +85,61 @@ def register():
 
     # 返回
     return jsonify(errno=RET.OK, errmsg="注册成功")
+
+
+@api.route("/sessions", methods=['POST'])
+def login():
+    """
+    :parameter: 手机号，密码，json
+    :return:
+    """
+    # 获取参数
+    reg_data = request.get_data()
+    data = json.loads(reg_data)
+    mobile = data.get('mobile')
+    password = data.get('password')
+
+    # 校验参数
+    # 参数是否完整
+    if not all([mobile, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不完整")
+    # 判断手机号格式
+    if not re.match(r'1[3578]\d{9}', mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号格式错误")
+    # 判断错误次数是否超过限制，如果超过限制，则返回； redis记录： "access_nums_请求的ip": "次数"
+    user_ip = request.remote_addr  # 获取用户ip
+    try:
+        access_nums = redis_store.get("access_nums_{}".format(user_ip))
+    except Exception as e:
+        current_app.logger.error(e)
+    else:
+        if access_nums and int(access_nums) >= constants.LOGIN_MAX_ERROR_TIMES:
+            return jsonify(errno=RET.REQERR, errmsg="错误次数过多，请稍后重试")
+    # 从数据库中根据手机号查询用户的数据对象
+    try:
+        user = User.query.filter_by(mobile=mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询用户信息失败")
+    # 数据库的密码与用户填写的密码进行对比验证
+    status = user.check_password(password)
+    if not user or not status:
+        # 验证失败，记录错误次数，返回信息
+        try:
+            # redis的incr可以对字符串类型的数字数据进行加一操作，如果数据一开始不存在，则会初始化为1
+            redis_store.incr("access_nums_{}".format(user_ip))
+            redis_store.expire("access_nums_{}".format(user_ip), constants.LOGIN_ERROR_FORBID_TIME)
+        except Exception as e:
+            current_app.logger.error(e)
+        return jsonify(errno=RET.DATAERR, errmsg="用户名或密码不正确")
+
+    # 验证成功，保存登录状态到session中
+    session['nickname'] = user.nickname
+    session['mobile'] = mobile
+    session['user_id'] = user.user_id
+
+    # 返回
+    return jsonify(errno=RET.OK, errmsg="登陆成功")
+
+
+
