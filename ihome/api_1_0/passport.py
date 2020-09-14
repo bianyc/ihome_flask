@@ -142,4 +142,27 @@ def login():
     return jsonify(errno=RET.OK, errmsg="登陆成功")
 
 
+@api.route("/session", methods=["GET"])
+def check_login():
+    """
+    检查登录
+    :return:
+    """
+    # 从session中获取用户名字
+    nickname = session.get("nickname")
+    # 如果用户名在存在，则登录状态，反正没有登录
+    if nickname:
+        return jsonify(errno=RET.OK, errmsg="true", data={"nickname": nickname})
+    else:
+        return jsonify(errno=RET.SESSIONERR, errmsg="false")
 
+
+@api.route("/session", methods=["DELETE"])
+def login_out():
+    """
+    退出登录
+    :return:
+    """
+    # 清除session数据
+    session.clear()
+    return jsonify(errno=RET.OK, errmsg="OK")

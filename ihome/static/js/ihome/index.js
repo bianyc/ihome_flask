@@ -1,4 +1,9 @@
 //模态框居中的控制
+function getCookie(name) {
+    var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+    return r ? r[1] : undefined;
+}
+
 function centerModals(){
     $('.modal').each(function(i){   //遍历每一个模态框
         var $clone = $(this).clone().css('display', 'block').appendTo('body');    
@@ -58,7 +63,23 @@ function goToSearchPage(th) {
 }
 
 $(document).ready(function(){
-    $(".top-bar>.register-login").show();
+    // 检查用户的登录状态
+    $.ajax({
+        url: "/api/v1.0/session",
+        type: "get",
+        headers: {
+            "X-CSRFToken": getCookie("csrf_token")
+        },
+        dataType: "json",
+        success: function (resp) {
+            if ("0" === resp.errno) {
+                $(".top-bar>.user-info>.user-name").html(resp.data.nickname);
+                $(".top-bar>.user-info").show();
+            } else {
+                $(".top-bar>.register-login").show();
+            }
+        }
+    });
     var mySwiper = new Swiper ('.swiper-container', {
         loop: true,
         autoplay: 2000,
