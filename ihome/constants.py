@@ -15,3 +15,6 @@ LOGIN_MAX_ERROR_TIMES = 5
 # 登录错误限制的时间, 单位：秒
 LOGIN_ERROR_FORBID_TIME = 600
 
+# 七牛云域名
+QINIU_URL_DOMAIN = "http://qgoudoubx.hd-bkt.clouddn.com/"
+
