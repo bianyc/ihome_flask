@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from ihome import db
+from ihome import db, constants
 
 
 class BaseModel(object):
@@ -14,7 +14,7 @@ class User(BaseModel, db.Model):
     """用户"""
     __tablename__ = "ih_user_profile"
     user_id = db.Column(db.Integer, primary_key=True)  # 用户编号
-    nickname = db.Column(db.String(32), unique=True, nullable=False)  # 用户昵称
+    nickname = db.Column(db.String(32), unique=True, nullable=False)  # 用户昵称/用户名
     password_hash = db.Column(db.String(128), nullable=False)  # 加密的密码
     mobile = db.Column(db.String(11), unique=True, nullable=False)  # 用户手机号
     real_name = db.Column(db.String(32))  # 真实姓名
@@ -51,6 +51,25 @@ class User(BaseModel, db.Model):
         :return: 正确返回True，否则返回False
         """
         return check_password_hash(self.password_hash, password)
+
+    def user_to_dic(self):
+        """将对象转换为字典数据"""
+        user_dic = {
+            "user_id": self.user_id,
+            "nickname": self.nickname,
+            "mobile": self.mobile,
+            "avatar_url": constants.QINIU_URL_DOMAIN + self.avatar_url if self.avatar_url else ""
+        }
+        return user_dic
+
+    def auth_to_dic(self):
+        """将实名信息转换为字典数据"""
+        auth_dic = {
+            "user_id": self.user_id,
+            "real_name": self.real_name,
+            "id_card": self.id_card
+        }
+        return auth_dic
 
 
 class Area(BaseModel, db.Model):
