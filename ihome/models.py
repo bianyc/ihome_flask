@@ -60,6 +60,14 @@ class Area(BaseModel, db.Model):
     area_name = db.Column(db.String(32), nullable=False)  # 区域名字
     houses = db.relationship("House", backref="area")  # 区域的房屋
 
+    # 将对象转换为字典
+    def to_dic(self):
+        dic = {
+            "id": self.area_id,
+            "name": self.area_name
+        }
+        return dic
+
 
 # 房屋设施表，建立房屋与设施的多对多关系
 house_facility = db.Table(
