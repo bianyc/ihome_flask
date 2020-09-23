@@ -21,3 +21,17 @@ AREA_REDIS_CACHE_EXPIRE = 7200
 # 七牛云域名
 QINIU_URL_DOMAIN = "http://qgoudoubx.hd-bkt.clouddn.com/"
 
+# 首页展示最多的房屋数量
+HOME_INDEX_MAX_HOUSES = 5
+
+# 首页房屋数据的Redis缓存时间，单位：秒
+HOME_HOUSES_REDIS_EXPIRE = 7200
+
+# 房屋详情页面数据Redis缓存时间，单位：秒
+HOUSE_DETAIL_REDIS_EXPIRE = 7200
+
+# 房屋详情页展示的评论最大数
+HOUSE_DETAIL_COMMENT_MAX_COUNTS = 30
+
+
+
