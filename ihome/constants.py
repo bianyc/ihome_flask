@@ -33,5 +33,9 @@ HOUSE_DETAIL_REDIS_EXPIRE = 7200
 # 房屋详情页展示的评论最大数
 HOUSE_DETAIL_COMMENT_MAX_COUNTS = 30
 
+# 房屋列表页每页显示房屋数量
+HOUSE_LIST_PAGE_CAPACITY = 2
 
+# 房屋列表页信息缓存到Redis过期时间，单位：秒
+HOUSE_LIST_REDIS_EXPIRE = 7200
 
